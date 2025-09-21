@@ -4,19 +4,29 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function HomePage() {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requireAuth?: boolean;
+  redirectTo?: string;
+}
+
+export default function ProtectedRoute({ 
+  children, 
+  requireAuth = true, 
+  redirectTo = '/login' 
+}: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
+      if (requireAuth && !user) {
+        router.push(redirectTo);
+      } else if (!requireAuth && user) {
         router.push('/dashboard');
-      } else {
-        router.push('/login');
       }
     }
-  }, [user, loading, router]);
+  }, [user, loading, requireAuth, redirectTo, router]);
 
   if (loading) {
     return (
@@ -29,5 +39,13 @@ export default function HomePage() {
     );
   }
 
-  return null;
+  if (requireAuth && !user) {
+    return null;
+  }
+
+  if (!requireAuth && user) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
