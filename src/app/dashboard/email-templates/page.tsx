@@ -702,7 +702,7 @@ export default function EmailTemplatesPage() {
                   </TabsContent>
 
                   <TabsContent value="ai" className="space-y-4">
-                    {user?.ai_model ? (
+                    {user?.ai_model && user?.ai_is_active ? (
                       <>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <div className="space-y-2">
@@ -1070,7 +1070,7 @@ export default function EmailTemplatesPage() {
                 <div className="flex justify-between w-full">
                   <CardTitle className="text-lg">{template.name}</CardTitle>
                   <div className="flex gap-1">
-                    {(!template?.is_admin || user?.is_admin) && (
+                    {(!template?.is_admin || user?.role) && (
                       <>
                         <Button
                           variant="ghost"
@@ -1134,7 +1134,7 @@ export default function EmailTemplatesPage() {
                 </div>
               )}
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-1 pt-2 flex-wrap">
                 {template.template_type === "ai_generated" && (
                   <Button
                     variant="outline"
@@ -1143,7 +1143,7 @@ export default function EmailTemplatesPage() {
                     onClick={() => handleRegenerateTemplate(template.id)}
                     className="flex-1"
                   >
-                    <RefreshCw className="mr-2 h-3 w-3" />
+                    <RefreshCw className="mr-2" />
                     Regenerate
                   </Button>
                 )}
@@ -1157,7 +1157,7 @@ export default function EmailTemplatesPage() {
                   }}
                   className="flex-1 "
                 >
-                  <Eye className="mr-2 h-3 w-3" />
+                  <Eye className="mr-2" />
                   View
                 </Button>
               </div>

@@ -5,12 +5,12 @@ const API_BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}api/v1`;
 import { saveAs } from "file-saver";
 
 export interface User {
+  role: boolean;
   id: number;
   username: string;
   email: string;
   full_name?: string;
   created_at: string;
-  is_admin: boolean;
   ai_api_key?: string;
   ai_model?: string;
   ai_provider?: string;
@@ -24,7 +24,6 @@ export interface UserSettings {
   username: string;
   email: string;
   full_name?: string;
-  is_admin: boolean;
   ai_model?: string;
   ai_provider?: string;
   ai_max_tokens?: number;
@@ -57,7 +56,6 @@ export interface AISettings {
 export interface SignupData {
   username: string;
   email: string;
-  is_admin: boolean;
   password: string;
   full_name?: string;
 }
@@ -515,6 +513,7 @@ async function fileToBytes(file: File) {
 
 export const authService = {
   async signup(data: SignupData): Promise<SignupResponse> {
+    console.log("Signup called with:", data);
     const response = await api.post("/signup", data);
     return response.data;
   },

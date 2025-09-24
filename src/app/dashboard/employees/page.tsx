@@ -97,6 +97,8 @@ export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Target[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createloading, setcreateLoading] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -183,6 +185,7 @@ export default function EmployeesPage() {
   };
 
   const handleCreateEmployee = async (data: EmployeeForm) => {
+    setcreateLoading(true);
     try {
       await targetsService.createTarget(data);
       toast.success("Employee created successfully");
@@ -193,12 +196,14 @@ export default function EmployeesPage() {
       const errorMessage =
         error.response?.data?.detail || "Failed to create employee";
       toast.error(errorMessage);
+    } finally {
+      setcreateLoading(false);
     }
   };
 
   const handleEditEmployee = async (data: EmployeeForm) => {
     if (!editingEmployee) return;
-
+    setcreateLoading(true);
     try {
       await targetsService.updateTarget(editingEmployee.id, data);
       toast.success("Employee updated successfully");
@@ -210,20 +215,26 @@ export default function EmployeesPage() {
       const errorMessage =
         error.response?.data?.detail || "Failed to update employee";
       toast.error(errorMessage);
+    } finally {
+      setcreateLoading(false);
     }
   };
 
   const handleDeleteEmployee = async (employeeId: number) => {
+    setcreateLoading(true);
     try {
       await targetsService.deleteTarget(employeeId);
       toast.success("Employee deleted successfully");
       fetchEmployees();
     } catch (error) {
       toast.error("Failed to delete employee");
+    } finally {
+      setcreateLoading(false);
     }
   };
 
   const handleCreateGroup = async (data: GroupForm) => {
+    setcreateLoading(true);
     try {
       await groupsService.createGroup(data);
       toast.success("Group created successfully");
@@ -234,12 +245,14 @@ export default function EmployeesPage() {
       const errorMessage =
         error.response?.data?.detail || "Failed to create group";
       toast.error(errorMessage);
+    } finally {
+      setcreateLoading(false);
     }
   };
 
   const handleEditGroup = async (data: GroupForm) => {
     if (!editingGroup) return;
-
+    setcreateLoading(true);
     try {
       await groupsService.updateGroup(editingGroup.id, data);
       toast.success("Group updated successfully");
@@ -251,10 +264,13 @@ export default function EmployeesPage() {
       const errorMessage =
         error.response?.data?.detail || "Failed to update group";
       toast.error(errorMessage);
+    } finally {
+      setcreateLoading(false);
     }
   };
 
   const handleDeleteGroup = async (groupId: number) => {
+    setcreateLoading(true);
     try {
       await groupsService.deleteGroup(groupId);
       toast.success("Group deleted successfully");
@@ -263,6 +279,8 @@ export default function EmployeesPage() {
       const errorMessage =
         error.response?.data?.detail || "Failed to delete group";
       toast.error(errorMessage);
+    } finally {
+      setcreateLoading(false);
     }
   };
 
@@ -490,7 +508,9 @@ export default function EmployeesPage() {
                       >
                         Cancel
                       </Button>
-                      <Button type="submit">Add Employee</Button>
+                      <Button disabled={createloading} type="submit">
+                        Add Employee
+                      </Button>
                     </DialogFooter>
                   </form>
                 </Form>

@@ -456,7 +456,7 @@ export default function CampaignsPage() {
           Create Campaign
         </Button>
       </div>
-      {user?.is_admin && (
+      {user?.role && (
         <Card>
           <>
             <CardHeader>
@@ -565,7 +565,7 @@ export default function CampaignsPage() {
                                   </Button>
                                 )}
 
-                                {canPause(campaign) && user?.is_admin && (
+                                {canPause(campaign) && user?.role && (
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -575,7 +575,7 @@ export default function CampaignsPage() {
                                     <Pause className="h-4 w-4" />
                                   </Button>
                                 )}
-                                {user?.is_admin && (
+                                {user?.role && (
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -601,7 +601,7 @@ export default function CampaignsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-mono">
-            {user?.is_admin ? "All" : "Your"} Campaigns
+            {user?.role ? "All" : "Your"} Campaigns
           </CardTitle>
           <CardDescription className="font-mono">
             Manage and monitor your security awareness campaigns
@@ -630,7 +630,7 @@ export default function CampaignsPage() {
                   <TableRow>
                     <TableHead className="font-mono">Name</TableHead>
                     <TableHead className="font-mono">Status</TableHead>
-                    {user?.is_admin && (
+                    {user?.role && (
                       <TableHead className="font-mono">Created by</TableHead>
                     )}
                     <TableHead className="font-mono">Target Type</TableHead>
@@ -668,7 +668,7 @@ export default function CampaignsPage() {
                               {campaign.status}
                             </Badge>
                           </TableCell>
-                          {user?.is_admin && (
+                          {user?.role && (
                             <TableCell className="font-mono">
                               {campaign.user_name}
                             </TableCell>
@@ -751,7 +751,7 @@ export default function CampaignsPage() {
       </Card>
       {/* Campaign Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-[50%] min-w-[50%] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[50%] min-w-[50%] max-h-[90vh] h-full flex flex-col overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-mono">
               {viewMode === "create"

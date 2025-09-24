@@ -607,7 +607,7 @@ export default function PhishletsPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Original URL:</span>
-                  {(!phishlet?.is_admin || user?.is_admin) && (
+                  {(!phishlet?.is_admin || user?.role) && (
                     <div className="flex gap-1">
                       <Button
                         variant="ghost"

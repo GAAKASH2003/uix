@@ -859,7 +859,7 @@ export default function SenderProfilesPage() {
                     {profile.from_address}
                   </CardDescription>
                 </div>
-                {(!profile?.is_admin || user?.is_admin) && (
+                {(!profile?.is_admin || user?.role) && (
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"

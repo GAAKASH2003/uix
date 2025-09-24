@@ -28,11 +28,13 @@ import {
   PasswordChange,
   AISettings,
 } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SettingsPage() {
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { setUser } = useAuth();
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -166,7 +168,7 @@ export default function SettingsPage() {
       const updatedSettings = await userSettingsService.updateAISettings(
         aiData
       );
-      setUserSettings(updatedSettings);
+      setUser(updatedSettings);
       setAiForm((prev) => ({ ...prev, api_key: "" })); // Clear API key after saving
       toast.success("AI settings updated successfully");
     } catch (error: any) {

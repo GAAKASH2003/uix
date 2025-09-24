@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -51,7 +51,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [isNavigating, setIsNavigating] = useState(false);
   // console.log("Sentry DSN:", process.env.NEXT_PUBLIC_SENTRY_DSN);
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [pathname]);
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
@@ -71,11 +75,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={() => {
+                    if (pathname !== item.href) {
+                      setIsNavigating(true);
+                    }
+                  }}
                   className={`group flex items-center px-3 py-2 text-sm font-medium rounded transition-colors font-mono ${
-                    isActive
+                    pathname === item.href
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  }`}
+                  } ${isNavigating ? "pointer-events-none opacity-50" : ""}`}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
                   {item.name}

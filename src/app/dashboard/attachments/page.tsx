@@ -580,7 +580,7 @@ export default function AttachmentsPage() {
               <div className="flex flex-col justify-between items-start">
                 <div className="flex justify-between w-full">
                   <CardTitle className="text-lg">{attachment.name}</CardTitle>
-                  {(!attachment?.is_admin || user?.is_admin) && (
+                  {(!attachment?.is_admin || user?.role) && (
                     <div className="flex gap-1">
                       <Button
                         variant="ghost"
