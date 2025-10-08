@@ -39,7 +39,7 @@ const navigation = [
   { name: "Campaigns", href: "/dashboard/campaigns", icon: Shield },
   { name: "Employees", href: "/dashboard/employees", icon: Users },
   { name: "Email Templates", href: "/dashboard/email-templates", icon: Mail },
-  { name: "Attachments", href: "/dashboard/attachments", icon: File },
+  { name: "Payload", href: "/dashboard/attachments", icon: File },
   { name: "Sender Profiles", href: "/dashboard/sender-profiles", icon: Send },
   { name: "Phishlets", href: "/dashboard/phishlets", icon: Globe },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },

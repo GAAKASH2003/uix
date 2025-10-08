@@ -61,7 +61,7 @@ import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   targetsService,
   groupsService,
@@ -321,14 +321,75 @@ export default function EmployeesPage() {
   );
 
   if (loading) {
+    const rows = 6;
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Loading employees...
-          </p>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex justify-between items-center">
+          <div>
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-10 w-36" />
+            <Skeleton className="h-10 w-10 rounded-md" />
+          </div>
         </div>
+
+        {/* Tabs skeleton */}
+        <div className="flex gap-4">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-8 w-28" />
+        </div>
+
+        {/* Card + table skeleton */}
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Skeleton className="h-6 w-40" />
+            </CardTitle>
+            <CardDescription>
+              <Skeleton className="h-4 w-64" />
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              {/* Table header skeleton */}
+              <div className="grid grid-cols-6 gap-4 p-4 border-b">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-4 w-full" />
+                ))}
+              </div>
+
+              {/* Table rows skeleton */}
+              <div className="divide-y">
+                {Array.from({ length: rows }).map((_, r) => (
+                  <div
+                    key={r}
+                    className="grid grid-cols-6 gap-4 items-center p-4"
+                  >
+                    {/* First col with two lines */}
+                    <div className="col-span-2 space-y-2">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+
+                    {/* Middle columns */}
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+
+                    {/* Action buttons */}
+                    <div className="flex justify-end gap-2">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

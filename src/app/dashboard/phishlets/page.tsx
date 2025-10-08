@@ -41,7 +41,7 @@ import {
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "next/navigation";
-
+import { Skeleton } from "@/components/ui/skeleton";
 export default function PhishletsPage() {
   const { user } = useAuth();
   const [phishlets, setPhishlets] = useState<Phishlet[]>([]);
@@ -201,9 +201,42 @@ export default function PhishletsPage() {
   };
 
   if (loading) {
+    const skeletonCount = 6;
+
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading phishlets...</div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: skeletonCount }).map((_, i) => (
+          <Card key={i} className="relative">
+            {/* Card header skeleton */}
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <Skeleton className="h-6 w-40 mb-2" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <div className="flex gap-1">
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                </div>
+              </div>
+            </CardHeader>
+
+            {/* Card content skeleton */}
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-5 w-16" />
+              </div>
+
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-3/4" />
+
+              <div className="flex gap-2 pt-2">
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
@@ -567,22 +600,24 @@ export default function PhishletsPage() {
                     {phishlet.description || "No description"}
                   </CardDescription>
                 </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openDialog("edit", phishlet)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeletePhishlet(phishlet.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                {!phishlet?.is_admin && (
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openDialog("edit", phishlet)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeletePhishlet(phishlet.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -607,24 +642,25 @@ export default function PhishletsPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Original URL:</span>
-                  {(!phishlet?.is_admin || user?.role) && (
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyToClipboard(phishlet.original_url)}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openUrl(phishlet.original_url)}
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
+                  {phishlet.original_url !== "custom" &&
+                    !phishlet?.is_admin && (
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyToClipboard(phishlet.original_url)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openUrl(phishlet.original_url)}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                 </div>
                 <p className="text-sm text-muted-foreground truncate">
                   {phishlet.original_url}

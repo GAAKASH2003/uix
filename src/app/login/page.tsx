@@ -139,7 +139,7 @@ export default function LoginPage() {
                     type="button"
                     className="w-full"
                     onClick={() => {
-                      window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/google`;
+                      window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}api/v1/auth/google`;
                     }}
                     disabled={isLoading}
                   >

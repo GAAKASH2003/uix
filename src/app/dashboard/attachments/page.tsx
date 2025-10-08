@@ -41,6 +41,7 @@ import {
 } from "@/lib/auth";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AttachmentsPage() {
   const [templates, setTemplates] = useState<AttachmentResponse[]>([]);
@@ -282,9 +283,30 @@ export default function AttachmentsPage() {
   };
 
   if (loading) {
+    // show a grid of skeleton cards matching final layout
+    const skeletonCount = 6;
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading attachments...</div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: skeletonCount }).map((_, i) => (
+          <div
+            key={i}
+            className="border rounded-md p-4 h-40 flex flex-col justify-between"
+          >
+            <div className="flex items-start justify-between">
+              <div className="space-y-2 w-2/3">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="flex space-x-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Skeleton className="h-8 w-full" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -303,7 +325,7 @@ export default function AttachmentsPage() {
             <DialogTrigger asChild>
               <Button onClick={() => openDialog("create")}>
                 <Plus className="mr-2 h-4 w-4" />
-                Upload Attachment
+                Upload Payload
               </Button>
             </DialogTrigger>
             <DialogContent className="overflow-y-auto max-h-[90vh] w-[80%]">
@@ -343,7 +365,7 @@ export default function AttachmentsPage() {
                     </div>
                   )}
 
-                  <div>
+                  {/* <div>
                     <Label className="text-sm font-medium">Download here</Label>
                     <button
                       onClick={() =>
@@ -357,7 +379,7 @@ export default function AttachmentsPage() {
                     >
                       {selectedAttachment.name || "Download file"}
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               ) : (
                 <Tabs
@@ -580,7 +602,7 @@ export default function AttachmentsPage() {
               <div className="flex flex-col justify-between items-start">
                 <div className="flex justify-between w-full">
                   <CardTitle className="text-lg">{attachment.name}</CardTitle>
-                  {(!attachment?.is_admin || user?.role) && (
+                  {!attachment?.is_admin && (
                     <div className="flex gap-1">
                       <Button
                         variant="ghost"

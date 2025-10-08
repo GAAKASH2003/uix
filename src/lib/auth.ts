@@ -5,7 +5,7 @@ const API_BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}api/v1`;
 import { saveAs } from "file-saver";
 
 export interface User {
-  role: boolean;
+  // role: boolean;
   id: number;
   username: string;
   email: string;

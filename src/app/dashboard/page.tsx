@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { analyticsService, DashboardStats, ActivityLog } from "@/lib/auth";
 import Link from "next/link";
-
+import { Skeleton } from "@/components/ui/skeleton";
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -113,22 +113,39 @@ export default function DashboardPage() {
 
       {/* Stats grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statsData.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium font-mono">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-mono">{stat.value}</div>
-              <p className="text-xs text-muted-foreground font-mono">
-                {stat.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        {loading
+          ? Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium font-mono">
+                    <Skeleton className="h-4 w-28" />
+                  </CardTitle>
+                  <Skeleton className="h-4 w-4" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-32 mb-2" />
+                  <Skeleton className="h-3 w-40" />
+                </CardContent>
+              </Card>
+            ))
+          : statsData.map((stat) => (
+              <Card key={stat.title}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium font-mono">
+                    {stat.title}
+                  </CardTitle>
+                  <stat.icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold font-mono">
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    {stat.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
       </div>
 
       {/* Quick actions */}
@@ -141,79 +158,96 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 h-[420px] overflow-y-auto pr-1">
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium font-mono">
-                Create Your First Campaign
-              </h4>
-              <p className="text-sm text-muted-foreground font-mono">
-                Set up a phishing simulation to test your organization's
-                security awareness.
-              </p>
-              <Button asChild size="sm" className="font-mono">
-                <Link
-                  href={{
-                    pathname: "/dashboard/campaigns",
-                    query: { openModal: "true" },
-                  }}
-                >
-                  <Shield className="mr-2 h-4 w-4" />
-                  Create Campaign
-                </Link>
-              </Button>
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium font-mono">Add Users</h4>
-              <p className="text-sm text-muted-foreground font-mono">
-                Import users from CSV or add them manually to your organization.
-              </p>
-              <Button asChild size="sm" className="font-mono">
-                <Link
-                  href={{
-                    pathname: "/dashboard/employees",
-                    query: { openModal: "true" },
-                  }}
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Manage Employees
-                </Link>
-              </Button>
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium font-mono">
-                Create Email Template
-              </h4>
-              <p className="text-sm text-muted-foreground font-mono">
-                Design compelling phishing emails for your campaigns.
-              </p>
-              <Button asChild size="sm" className="font-mono">
-                <Link
-                  href={{
-                    pathname: "/dashboard/email-templates",
-                    query: { openModal: "true" },
-                  }}
-                >
-                  <Mail className="mr-2 h-4 w-4" />
-                  Create Template
-                </Link>
-              </Button>
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium font-mono">Clone Website</h4>
-              <p className="text-sm text-muted-foreground font-mono">
-                Create phishing pages by cloning real websites.
-              </p>
-              <Button asChild size="sm" className="font-mono">
-                <Link
-                  href={{
-                    pathname: "/dashboard/phishlets",
-                    query: { openModal: "true" },
-                  }}
-                >
-                  <Globe className="mr-2 h-4 w-4" />
-                  Create Phishlet
-                </Link>
-              </Button>
-            </div>
+            {loading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-72" />
+                    <Skeleton className="h-8 w-36" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium font-mono">
+                    Create Your First Campaign
+                  </h4>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    Set up a phishing simulation to test your organization's
+                    security awareness.
+                  </p>
+                  <Button asChild size="sm" className="font-mono">
+                    <Link
+                      href={{
+                        pathname: "/dashboard/campaigns",
+                        query: { openModal: "true" },
+                      }}
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      Create Campaign
+                    </Link>
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium font-mono">Add Users</h4>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    Import users from CSV or add them manually to your
+                    organization.
+                  </p>
+                  <Button asChild size="sm" className="font-mono">
+                    <Link
+                      href={{
+                        pathname: "/dashboard/employees",
+                        query: { openModal: "true" },
+                      }}
+                    >
+                      <Users className="mr-2 h-4 w-4" />
+                      Manage Employees
+                    </Link>
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium font-mono">
+                    Create Email Template
+                  </h4>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    Design compelling phishing emails for your campaigns.
+                  </p>
+                  <Button asChild size="sm" className="font-mono">
+                    <Link
+                      href={{
+                        pathname: "/dashboard/email-templates",
+                        query: { openModal: "true" },
+                      }}
+                    >
+                      <Mail className="mr-2 h-4 w-4" />
+                      Create Template
+                    </Link>
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium font-mono">
+                    Clone Website
+                  </h4>
+                  <p className="text-sm text-muted-foreground font-mono">
+                    Create phishing pages by cloning real websites.
+                  </p>
+                  <Button asChild size="sm" className="font-mono">
+                    <Link
+                      href={{
+                        pathname: "/dashboard/phishlets",
+                        query: { openModal: "true" },
+                      }}
+                    >
+                      <Globe className="mr-2 h-4 w-4" />
+                      Create Phishlet
+                    </Link>
+                  </Button>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -226,10 +260,24 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="h-[420px] flex flex-col">
             {loading ? (
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground font-mono">
-                  Loading...
-                </p>
+              <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start space-x-3 p-3 border rounded-lg"
+                  >
+                    <div className="flex-shrink-0">
+                      <Skeleton className="h-6 w-6 rounded-full" />
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <Skeleton className="h-4 w-4/5" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                    <div className="flex-shrink-0">
+                      <Skeleton className="h-4 w-12" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : recentActivities.length > 0 ? (
               <div className="space-y-3 overflow-y-auto flex-1 pr-1">

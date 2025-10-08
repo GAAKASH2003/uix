@@ -1,45 +1,69 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import { 
-  BarChart3, 
-  Users, 
-  Mail, 
-  Target, 
-  TrendingUp, 
-  Activity, 
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BarChart3,
+  Users,
+  Mail,
+  Target,
+  TrendingUp,
+  Activity,
   AlertTriangle,
   Eye,
   MousePointer,
   FileText,
   Calendar,
   Clock,
-  Globe
-} from 'lucide-react';
-import { 
-  analyticsService, 
-  DashboardStats, 
-  CampaignStats, 
-  ActivityLog, 
-  TargetPerformance, 
-  TimeSeriesData 
-} from '@/lib/auth';
+  Globe,
+} from "lucide-react";
+import {
+  analyticsService,
+  DashboardStats,
+  CampaignStats,
+  ActivityLog,
+  TargetPerformance,
+  TimeSeriesData,
+} from "@/lib/auth";
 
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
+    null
+  );
   const [campaignStats, setCampaignStats] = useState<CampaignStats[]>([]);
   const [activityLog, setActivityLog] = useState<ActivityLog[]>([]);
-  const [targetPerformance, setTargetPerformance] = useState<TargetPerformance[]>([]);
+  const [targetPerformance, setTargetPerformance] = useState<
+    TargetPerformance[]
+  >([]);
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
-  const [timeRange, setTimeRange] = useState('30');
+  const [timeRange, setTimeRange] = useState("30");
 
   useEffect(() => {
     loadAnalytics();
@@ -48,19 +72,14 @@ export default function AnalyticsPage() {
   const loadAnalytics = async () => {
     setLoading(true);
     try {
-      const [
-        stats,
-        campaigns,
-        activities,
-        targets,
-        timeSeries
-      ] = await Promise.all([
-        analyticsService.getDashboardStats(),
-        analyticsService.getCampaignStats(),
-        analyticsService.getActivityLog(20),
-        analyticsService.getTargetPerformance(),
-        analyticsService.getTimeSeriesData(parseInt(timeRange))
-      ]);
+      const [stats, campaigns, activities, targets, timeSeries] =
+        await Promise.all([
+          analyticsService.getDashboardStats(),
+          analyticsService.getCampaignStats(),
+          analyticsService.getActivityLog(20),
+          analyticsService.getTargetPerformance(),
+          analyticsService.getTimeSeriesData(parseInt(timeRange)),
+        ]);
 
       setDashboardStats(stats);
       setCampaignStats(campaigns);
@@ -68,7 +87,7 @@ export default function AnalyticsPage() {
       setTargetPerformance(targets);
       setTimeSeriesData(timeSeries);
     } catch (error) {
-      toast.error('Failed to load analytics data');
+      toast.error("Failed to load analytics data");
     } finally {
       setLoading(false);
     }
@@ -76,39 +95,103 @@ export default function AnalyticsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'running':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'draft':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-      case 'scheduled':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      case "running":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "completed":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+      case "draft":
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+      case "scheduled":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
   };
 
   const getRiskColor = (riskScore: number) => {
-    if (riskScore >= 70) return 'text-red-600 dark:text-red-400';
-    if (riskScore >= 40) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-green-600 dark:text-green-400';
+    if (riskScore >= 70) return "text-red-600 dark:text-red-400";
+    if (riskScore >= 40) return "text-yellow-600 dark:text-yellow-400";
+    return "text-green-600 dark:text-green-400";
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   if (loading) {
+    // show skeletons for dashboard cards + table/list
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading analytics...</div>
+      <div className="space-y-6">
+        {/* header skeleton */}
+        <div className="flex justify-between items-center">
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="mt-2 h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-36" />
+        </div>
+
+        {/* stats cards skeleton */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex justify-between pb-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-4" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-24 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* table / tabs skeleton */}
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Skeleton className="h-6 w-36" />
+            </CardTitle>
+            <CardDescription>
+              <Skeleton className="h-4 w-80" />
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* table header skeleton */}
+              <div className="grid grid-cols-8 gap-4 py-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="h-4 w-full" />
+                ))}
+              </div>
+
+              {/* rows skeleton */}
+              {Array.from({ length: 6 }).map((_, r) => (
+                <div
+                  key={r}
+                  className="grid grid-cols-8 gap-4 items-center py-4 border-b"
+                >
+                  <Skeleton className="h-4 w-full col-span-2" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <div className="flex justify-end col-span-1">
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -142,11 +225,15 @@ export default function AnalyticsPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium font-mono">Total Campaigns</CardTitle>
+              <CardTitle className="text-sm font-medium font-mono">
+                Total Campaigns
+              </CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-mono">{dashboardStats.total_campaigns}</div>
+              <div className="text-2xl font-bold font-mono">
+                {dashboardStats.total_campaigns}
+              </div>
               <p className="text-xs text-muted-foreground font-mono">
                 {dashboardStats.active_campaigns} active
               </p>
@@ -155,11 +242,15 @@ export default function AnalyticsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium font-mono">Total Targets</CardTitle>
+              <CardTitle className="text-sm font-medium font-mono">
+                Total Targets
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-mono">{dashboardStats.total_targets}</div>
+              <div className="text-2xl font-bold font-mono">
+                {dashboardStats.total_targets}
+              </div>
               <p className="text-xs text-muted-foreground font-mono">
                 Across all campaigns
               </p>
@@ -168,24 +259,40 @@ export default function AnalyticsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium font-mono">Emails Sent</CardTitle>
+              <CardTitle className="text-sm font-medium font-mono">
+                Emails Sent
+              </CardTitle>
               <Mail className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-mono">{dashboardStats.total_emails_sent}</div>
+              <div className="text-2xl font-bold font-mono">
+                {dashboardStats.total_emails_sent}
+              </div>
               <p className="text-xs text-muted-foreground font-mono">
-                {dashboardStats.total_emails_opened} opened ({dashboardStats.total_emails_sent > 0 ? Math.round((dashboardStats.total_emails_opened / dashboardStats.total_emails_sent) * 100) : 0}%)
+                {dashboardStats.total_emails_opened} opened (
+                {dashboardStats.total_emails_sent > 0
+                  ? Math.round(
+                      (dashboardStats.total_emails_opened /
+                        dashboardStats.total_emails_sent) *
+                        100
+                    )
+                  : 0}
+                %)
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium font-mono">Success Rate</CardTitle>
+              <CardTitle className="text-sm font-medium font-mono">
+                Success Rate
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-mono">{dashboardStats.success_rate}%</div>
+              <div className="text-2xl font-bold font-mono">
+                {dashboardStats.success_rate}%
+              </div>
               <p className="text-xs text-muted-foreground font-mono">
                 {dashboardStats.total_form_submissions} submissions
               </p>
@@ -228,18 +335,36 @@ export default function AnalyticsPage() {
                 <TableBody>
                   {campaignStats.map((campaign) => (
                     <TableRow key={campaign.campaign_id}>
-                      <TableCell className="font-mono">{campaign.campaign_name}</TableCell>
+                      <TableCell className="font-mono">
+                        {campaign.campaign_name}
+                      </TableCell>
                       <TableCell>
-                        <Badge className={`font-mono ${getStatusColor(campaign.status)}`}>
+                        <Badge
+                          className={`font-mono ${getStatusColor(
+                            campaign.status
+                          )}`}
+                        >
                           {campaign.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono">{campaign.total_targets}</TableCell>
-                      <TableCell className="font-mono">{campaign.emails_sent}</TableCell>
-                      <TableCell className="font-mono">{campaign.emails_opened}</TableCell>
-                      <TableCell className="font-mono">{campaign.clicks}</TableCell>
-                      <TableCell className="font-mono">{campaign.form_submissions}</TableCell>
-                      <TableCell className="font-mono">{campaign.success_rate}%</TableCell>
+                      <TableCell className="font-mono">
+                        {campaign.total_targets}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {campaign.emails_sent}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {campaign.emails_opened}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {campaign.clicks}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {campaign.form_submissions}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {campaign.success_rate}%
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -273,15 +398,33 @@ export default function AnalyticsPage() {
                 <TableBody>
                   {targetPerformance.map((target) => (
                     <TableRow key={target.target_id}>
-                      <TableCell className="font-mono">{target.target_name}</TableCell>
-                      <TableCell className="font-mono">{target.target_email}</TableCell>
-                      <TableCell className="font-mono">{target.campaigns_participated}</TableCell>
-                      <TableCell className="font-mono">{target.emails_received}</TableCell>
-                      <TableCell className="font-mono">{target.emails_opened}</TableCell>
-                      <TableCell className="font-mono">{target.clicks}</TableCell>
-                      <TableCell className="font-mono">{target.form_submissions}</TableCell>
+                      <TableCell className="font-mono">
+                        {target.target_name}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {target.target_email}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {target.campaigns_participated}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {target.emails_received}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {target.emails_opened}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {target.clicks}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {target.form_submissions}
+                      </TableCell>
                       <TableCell>
-                        <span className={`font-mono font-bold ${getRiskColor(target.risk_score)}`}>
+                        <span
+                          className={`font-mono font-bold ${getRiskColor(
+                            target.risk_score
+                          )}`}
+                        >
                           {target.risk_score}%
                         </span>
                       </TableCell>
@@ -301,29 +444,52 @@ export default function AnalyticsPage() {
                 Latest activities and events in your account
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col" style={{maxHeight: 'calc(100vh - 320px)'}}>
+            <CardContent
+              className="flex flex-col"
+              style={{ maxHeight: "calc(100vh - 320px)" }}
+            >
               <div className="space-y-4 overflow-y-auto pr-1 flex-1">
                 {activityLog.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-4 p-4 border rounded-lg">
+                  <div
+                    key={activity.id}
+                    className="flex items-start space-x-4 p-4 border rounded-lg"
+                  >
                     <div className="flex-shrink-0">
-                      {activity.activity_type.includes('campaign') && <BarChart3 className="h-5 w-5 text-muted-foreground" />}
-                      {activity.activity_type.includes('target') && <Target className="h-5 w-5 text-muted-foreground" />}
-                      {activity.activity_type.includes('template') && <FileText className="h-5 w-5 text-muted-foreground" />}
-                      {activity.activity_type.includes('phishlet') && <Globe className="h-5 w-5 text-muted-foreground" />}
-                      {activity.activity_type.includes('sender_profile') && <Mail className="h-5 w-5 text-muted-foreground" />}
-                      {activity.activity_type.includes('group') && <Users className="h-5 w-5 text-muted-foreground" />}
-                      {activity.activity_type.includes('login') && <Activity className="h-5 w-5 text-muted-foreground" />}
-                      {!activity.activity_type.includes('campaign') && 
-                       !activity.activity_type.includes('target') && 
-                       !activity.activity_type.includes('template') && 
-                       !activity.activity_type.includes('phishlet') && 
-                       !activity.activity_type.includes('sender_profile') && 
-                       !activity.activity_type.includes('group') && 
-                       !activity.activity_type.includes('login') && 
-                       <Activity className="h-5 w-5 text-muted-foreground" />}
+                      {activity.activity_type.includes("campaign") && (
+                        <BarChart3 className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      {activity.activity_type.includes("target") && (
+                        <Target className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      {activity.activity_type.includes("template") && (
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      {activity.activity_type.includes("phishlet") && (
+                        <Globe className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      {activity.activity_type.includes("sender_profile") && (
+                        <Mail className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      {activity.activity_type.includes("group") && (
+                        <Users className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      {activity.activity_type.includes("login") && (
+                        <Activity className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      {!activity.activity_type.includes("campaign") &&
+                        !activity.activity_type.includes("target") &&
+                        !activity.activity_type.includes("template") &&
+                        !activity.activity_type.includes("phishlet") &&
+                        !activity.activity_type.includes("sender_profile") &&
+                        !activity.activity_type.includes("group") &&
+                        !activity.activity_type.includes("login") && (
+                          <Activity className="h-5 w-5 text-muted-foreground" />
+                        )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium font-mono">{activity.description}</p>
+                      <p className="text-sm font-medium font-mono">
+                        {activity.description}
+                      </p>
                       {activity.resource_name && (
                         <p className="text-xs text-muted-foreground font-mono">
                           Resource: {activity.resource_name}
@@ -351,27 +517,46 @@ export default function AnalyticsPage() {
             <CardContent>
               <div className="space-y-4">
                 {timeSeriesData.map((data) => (
-                  <div key={data.date} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={data.date}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div className="flex items-center space-x-4">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span className="font-mono">{data.date}</span>
                     </div>
                     <div className="flex items-center space-x-6">
                       <div className="text-center">
-                        <div className="text-sm font-mono font-medium">{data.emails_sent}</div>
-                        <div className="text-xs text-muted-foreground font-mono">Sent</div>
+                        <div className="text-sm font-mono font-medium">
+                          {data.emails_sent}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-mono">
+                          Sent
+                        </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-mono font-medium">{data.emails_opened}</div>
-                        <div className="text-xs text-muted-foreground font-mono">Opened</div>
+                        <div className="text-sm font-mono font-medium">
+                          {data.emails_opened}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-mono">
+                          Opened
+                        </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-mono font-medium">{data.clicks}</div>
-                        <div className="text-xs text-muted-foreground font-mono">Clicks</div>
+                        <div className="text-sm font-mono font-medium">
+                          {data.clicks}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-mono">
+                          Clicks
+                        </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-sm font-mono font-medium">{data.form_submissions}</div>
-                        <div className="text-xs text-muted-foreground font-mono">Submissions</div>
+                        <div className="text-sm font-mono font-medium">
+                          {data.form_submissions}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-mono">
+                          Submissions
+                        </div>
                       </div>
                     </div>
                   </div>

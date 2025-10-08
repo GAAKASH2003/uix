@@ -40,7 +40,7 @@ import {
 } from "@/lib/auth";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-
+import { Skeleton } from "@/components/ui/skeleton";
 export default function EmailTemplatesPage() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
 
@@ -437,9 +437,50 @@ export default function EmailTemplatesPage() {
   };
 
   if (loading) {
+    const count = 6;
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading templates...</div>
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="flex justify-between items-center">
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="mt-2 h-4 w-64" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-36" />
+          </div>
+        </div>
+
+        {/* Cards skeleton */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: count }).map((_, i) => (
+            <div
+              key={i}
+              className="border rounded-md p-4 h-44 flex flex-col justify-between"
+            >
+              {/* Card header */}
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 w-2/3">
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <div className="flex space-x-2">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                </div>
+              </div>
+
+              {/* Card content */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <Skeleton className="h-3 w-full mt-2" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -1070,7 +1111,7 @@ export default function EmailTemplatesPage() {
                 <div className="flex justify-between w-full">
                   <CardTitle className="text-lg">{template.name}</CardTitle>
                   <div className="flex gap-1">
-                    {(!template?.is_admin || user?.role) && (
+                    {!template?.is_admin && (
                       <>
                         <Button
                           variant="ghost"

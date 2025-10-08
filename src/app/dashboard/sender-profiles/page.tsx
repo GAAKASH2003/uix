@@ -38,6 +38,7 @@ import {
   SenderProfileCreate,
   SenderProfileUpdate,
 } from "@/lib/auth";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 export default function SenderProfilesPage() {
   const { user } = useAuth();
@@ -360,9 +361,44 @@ export default function SenderProfilesPage() {
   };
 
   if (loading) {
+    const skeletonCount = 6;
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading sender profiles...</div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: skeletonCount }).map((_, i) => (
+          <Card key={i} className="relative">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <Skeleton className="h-6 w-32 mb-2" />
+                  <Skeleton className="h-3 w-40" />
+                </div>
+                <div className="flex gap-1">
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Badge className="opacity-0">
+                  <Skeleton className="h-5 w-20" />
+                </Badge>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-5 rounded" />
+                  <Skeleton className="h-6 w-16" />
+                </div>
+              </div>
+
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-3 w-3/4" />
+
+              <div className="flex gap-2 pt-2">
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
@@ -859,7 +895,7 @@ export default function SenderProfilesPage() {
                     {profile.from_address}
                   </CardDescription>
                 </div>
-                {(!profile?.is_admin || user?.role) && (
+                {!profile?.is_admin && (
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"

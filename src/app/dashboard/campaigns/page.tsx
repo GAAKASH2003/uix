@@ -76,6 +76,7 @@ import {
 } from "@/lib/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CampaignsPage() {
   const { user } = useAuth();
@@ -433,9 +434,61 @@ export default function CampaignsPage() {
   };
 
   if (loading) {
+    const rows = 6;
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading campaigns...</div>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight font-mono">
+              <Skeleton className="h-8 w-48" />
+            </h1>
+            <p className="text-muted-foreground font-mono">
+              <Skeleton className="h-4 w-64 mt-2" />
+            </p>
+          </div>
+          <Skeleton className="h-10 w-36" />
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Skeleton className="h-6 w-36" />
+            </CardTitle>
+            <CardDescription>
+              <Skeleton className="h-4 w-80" />
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <div className="min-w-full">
+                {/* table header skeleton */}
+                <div className="grid grid-cols-7 gap-4 py-2">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <Skeleton key={i} className="h-4 w-full" />
+                  ))}
+                </div>
+
+                {/* rows skeleton */}
+                {Array.from({ length: rows }).map((_, r) => (
+                  <div
+                    key={r}
+                    className="grid grid-cols-7 gap-4 items-center py-4 border-b"
+                  >
+                    <Skeleton className="h-4 w-full col-span-2" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <div className="flex gap-2 justify-end col-span-1">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -456,7 +509,7 @@ export default function CampaignsPage() {
           Create Campaign
         </Button>
       </div>
-      {user?.role && (
+      {/* {user?.role && (
         <Card>
           <>
             <CardHeader>
@@ -596,12 +649,13 @@ export default function CampaignsPage() {
             </CardContent>
           </>
         </Card>
-      )}
+      )} */}
       {/* Campaigns Table */}
       <Card>
         <CardHeader>
           <CardTitle className="font-mono">
-            {user?.role ? "All" : "Your"} Campaigns
+            {/* {user?.role ? "All" : "Your"} Campaigns */}
+            Your Campaigns
           </CardTitle>
           <CardDescription className="font-mono">
             Manage and monitor your security awareness campaigns
@@ -630,9 +684,9 @@ export default function CampaignsPage() {
                   <TableRow>
                     <TableHead className="font-mono">Name</TableHead>
                     <TableHead className="font-mono">Status</TableHead>
-                    {user?.role && (
+                    {/* {user?.role && (
                       <TableHead className="font-mono">Created by</TableHead>
-                    )}
+                    )} */}
                     <TableHead className="font-mono">Target Type</TableHead>
                     <TableHead className="font-mono">Scheduled</TableHead>
                     <TableHead className="font-mono">Created</TableHead>
@@ -668,11 +722,11 @@ export default function CampaignsPage() {
                               {campaign.status}
                             </Badge>
                           </TableCell>
-                          {user?.role && (
+                          {/* {user?.role && (
                             <TableCell className="font-mono">
                               {campaign.user_name}
                             </TableCell>
-                          )}
+                          )} */}
                           <TableCell className="font-mono">
                             {campaign.target_type === "group"
                               ? "Group"
@@ -751,7 +805,11 @@ export default function CampaignsPage() {
       </Card>
       {/* Campaign Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-[50%] min-w-[50%] max-h-[90vh] h-full flex flex-col overflow-y-auto">
+        <DialogContent
+          className={`w-[50%] min-w-[50%] max-h-[90vh] ${
+            viewMode === "create" || viewMode === "edit" ? "h-fit" : "h-full"
+          } flex flex-col overflow-y-auto`}
+        >
           <DialogHeader>
             <DialogTitle className="font-mono">
               {viewMode === "create"
@@ -874,6 +932,163 @@ export default function CampaignsPage() {
                     </p>
                   </div>
                 </div>
+                <br />
+                {/* {campaignResults.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-mono">Target</TableHead>
+                        <TableHead className="font-mono">Email Sent</TableHead>
+                        <TableHead className="font-mono">Opened</TableHead>
+                        {selectedCampaign.phishlet_id && (
+                          <>
+                            <TableHead className="font-mono">Clicked</TableHead>
+                            <TableHead className="font-mono">
+                              Submitted
+                            </TableHead>
+                          </>
+                        )}
+                        {selectedCampaign.attachment_id && (
+                          <>
+                            <TableHead className="font-mono">
+                              Attachment sent
+                            </TableHead>
+                          </>
+                        )}
+                        <TableHead className="font-mono"> </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {campaignResults.map((result, cmId) => (
+                        <React.Fragment key={cmId}>
+                          <TableRow
+                            key={result.id}
+                            className="cursor-pointer hover:bg-muted transition-colors"
+                            onClick={() => toggleRow(result.id)}
+                          >
+                            <TableCell className="font-mono">
+                              {result.target_email}
+                            </TableCell>
+                            <TableCell className="font-mono">
+                              <Badge
+                                variant={
+                                  result.email_sent ? "default" : "secondary"
+                                }
+                              >
+                                {result.email_sent ? "Yes" : "No"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="font-mono">
+                              <Badge
+                                variant={
+                                  result.email_opened ? "default" : "secondary"
+                                }
+                              >
+                                {result.email_opened ? "Yes" : "No"}
+                              </Badge>
+                            </TableCell>
+                            {selectedCampaign.phishlet_id && (
+                              <>
+                                <TableCell className="font-mono">
+                                  <Badge
+                                    variant={
+                                      result.link_clicked
+                                        ? "default"
+                                        : "secondary"
+                                    }
+                                  >
+                                    {result.link_clicked ? "Yes" : "No"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="font-mono">
+                                  <Badge
+                                    variant={
+                                      result.form_submitted
+                                        ? "default"
+                                        : "secondary"
+                                    }
+                                  >
+                                    {result.form_submitted ? "Yes" : "No"}
+                                  </Badge>
+                                </TableCell>
+                              </>
+                            )}
+                            {selectedCampaign.attachment_id && (
+                              <TableCell className="font-mono">
+                                <Badge
+                                  variant={
+                                    result.email_sent ? "default" : "secondary"
+                                  }
+                                >
+                                  {result.email_sent ? "Yes" : "No"}
+                                </Badge>
+                              </TableCell>
+                            )}
+                            <TableCell>
+                              {expandedRowId === result.id ? (
+                                <ChevronUp
+                                  className="h-4 w-4"
+                                  color={"white"}
+                                />
+                              ) : (
+                                <ChevronDown
+                                  className="h-4 w-4"
+                                  color={"white"}
+                                />
+                              )}
+                            </TableCell>
+                          </TableRow>
+
+                          {expandedRowId === result.id && (
+                            <TableRow className="bg-muted/50">
+                              <TableCell
+                                colSpan={5}
+                                className="font-mono text-sm"
+                              >
+                                <div>
+                                  {result?.captured_data === null ? (
+                                    <p className="text-sm font-mono text-muted-foreground">
+                                      Data not captured yet
+                                    </p>
+                                  ) : (
+                                    <div>
+                                      {(
+                                        result.captured_data
+                                          .credentials as string[][]
+                                      ).map((credential, i) => (
+                                        <div key={i} className="mb-2">
+                                          {credential.map((cred, j) => (
+                                            <p
+                                              key={j}
+                                              className="text-sm font-mono text-muted-foreground"
+                                            >
+                                              {cred}
+                                            </p>
+                                          ))}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-8">
+                    <Activity className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-medium font-mono">
+                      No results yet
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground font-mono">
+                      Campaign results will appear here once the campaign is
+                      running.
+                    </p>
+                  </div>
+                )} */}
               </TabsContent>
 
               <TabsContent value="analytics" className="space-y-6">
