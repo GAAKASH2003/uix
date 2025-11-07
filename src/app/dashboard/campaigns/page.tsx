@@ -442,9 +442,9 @@ export default function CampaignsPage() {
             <h1 className="text-2xl font-bold tracking-tight font-mono">
               <Skeleton className="h-8 w-48" />
             </h1>
-            <p className="text-muted-foreground font-mono">
+            {/* <p className="text-muted-foreground font-mono">
               <Skeleton className="h-4 w-64 mt-2" />
-            </p>
+            </p> */}
           </div>
           <Skeleton className="h-10 w-36" />
         </div>
