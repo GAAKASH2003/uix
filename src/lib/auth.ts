@@ -523,13 +523,21 @@ export const authService = {
     return response.data;
   },
 
-  async getCurrentUser(): Promise<User> {
+  async getCurrentUser(): Promise<User | null> {
     console.log(
       "getCurrentUser called - Token:",
       this.getToken() ? "Present" : "Missing"
     );
-    const response = await api.get("/me");
-    return response.data;
+    try {
+      const response = await api.get("/me");
+      if (response.status === 200) {
+        return response.data;
+      }
+      return null;
+    } catch (error) {
+      // If request fails (e.g. 401/404), return null to indicate no user
+      return null;
+    }
   },
 
   logout() {
@@ -620,6 +628,15 @@ export const targetsService = {
   async getTargetsCount(): Promise<number> {
     const targets = await this.getTargets();
     return targets.length;
+  },
+
+  async importEmployees(file: File): Promise<void> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await api.post("/targets/import", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
   },
 };
 

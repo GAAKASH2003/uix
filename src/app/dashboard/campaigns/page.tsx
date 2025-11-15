@@ -829,16 +829,16 @@ export default function CampaignsPage() {
 
           {viewMode === "view" && selectedCampaign ? (
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="details" className="font-mono">
                   Details
                 </TabsTrigger>
                 <TabsTrigger value="analytics" className="font-mono">
                   Analytics
                 </TabsTrigger>
-                <TabsTrigger value="results" className="font-mono">
+                {/* <TabsTrigger value="results" className="font-mono">
                   Results
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="details" className="space-y-4">
@@ -933,7 +933,8 @@ export default function CampaignsPage() {
                   </div>
                 </div>
                 <br />
-                {/* {campaignResults.length > 0 ? (
+                <h1 className="font-mono text-lg font-semibold">Results</h1>
+                {campaignResults.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1088,7 +1089,7 @@ export default function CampaignsPage() {
                       running.
                     </p>
                   </div>
-                )} */}
+                )}
               </TabsContent>
 
               <TabsContent value="analytics" className="space-y-6">
@@ -1425,7 +1426,7 @@ export default function CampaignsPage() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="results" className="space-y-4">
+              {/* <TabsContent value="results" className="space-y-4">
                 {campaignResults.length > 0 ? (
                   <Table>
                     <TableHeader>
@@ -1582,7 +1583,7 @@ export default function CampaignsPage() {
                     </p>
                   </div>
                 )}
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           ) : (
             <form

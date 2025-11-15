@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Search, Filter } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Edit, Trash2, Search, Filter, Upload } from "lucide-react";
 import { toast } from "sonner";
-
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -98,9 +98,12 @@ export default function EmployeesPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [createloading, setcreateLoading] = useState(false);
-
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Target | null>(null);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
@@ -161,6 +164,90 @@ export default function EmployeesPage() {
       setIsCreateDialogOpen(true);
     }
   }, []);
+
+  const validateAndSetFile = (file: File) => {
+    // Allow common file types for attachments
+    const allowedTypes = [".csv"];
+    const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
+
+    if (!allowedTypes.includes(fileExtension)) {
+      toast.error("Please select a supported file type (.csv)");
+      return false;
+    }
+    console.log("file_size", file.size);
+    if (file.size > 10 * 1024 * 1024) {
+      // 10MB limit
+      toast.error("File size incompatible. Maximum size is 10MB.");
+      return false;
+    }
+
+    setSelectedFile(file);
+    // Auto-fill name from filename if not provided
+    // if (!attachmentForm.name) {
+    //   setAttachmentForm((prev) => ({
+    //     ...prev,
+    //     name: file.name.replace(fileExtension, ""),
+    //   }));
+    // }
+    return true;
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      validateAndSetFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      const file = files[0];
+      validateAndSetFile(file);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleImportEmployees = async () => {
+    if (!selectedFile) {
+      toast.error("Please select a file to import.");
+      return;
+    }
+
+    setcreateLoading(true);
+    try {
+      const response = await targetsService.importEmployees(selectedFile);
+      console.log("Import response:", response);
+      toast.success("Employees imported successfully");
+      setIsImportDialogOpen(false);
+      form.reset();
+      setSelectedFile(null);
+      fetchEmployees();
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail || "Failed to import employees";
+      toast.error(errorMessage);
+    } finally {
+      setcreateLoading(false);
+    }
+  };
 
   const fetchEmployees = async () => {
     try {
@@ -313,9 +400,9 @@ export default function EmployeesPage() {
 
   const filteredEmployees = employees.filter(
     (employee) =>
-      employee.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (employee.position &&
         employee.position.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -409,174 +496,265 @@ export default function EmployeesPage() {
         </div>
         <div className="flex gap-2">
           {activeTab === "employees" && (
-            <Dialog
-              open={isCreateDialogOpen}
-              onOpenChange={setIsCreateDialogOpen}
-            >
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Employee
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Employee</DialogTitle>
-                  <DialogDescription>
-                    Add a new employee to your organization for security
-                    awareness campaigns.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(handleCreateEmployee)}
-                    className="space-y-4"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="first_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              maxLength={50}
-                              placeholder="Enter first name"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="last_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              maxLength={50}
-                              placeholder="Enter last name"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="email"
-                              maxLength={60}
-                              placeholder="Enter email address"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="position"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Position (Optional)</FormLabel>
-                          <FormControl>
-                            <Input
-                              maxLength={50}
-                              placeholder="Enter job position"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="group_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Group (Optional)</FormLabel>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(
-                                value === "0" ? undefined : parseInt(value)
-                              )
-                            }
-                            value={field.value?.toString() || "0"}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a group" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="0">No Group</SelectItem>
-                              {groups.map((group) => (
-                                <SelectItem
-                                  key={group.id}
-                                  value={group.id.toString()}
-                                >
-                                  {group.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="is_active"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">
-                              Active Status
-                            </FormLabel>
-                            <div className="text-sm text-muted-foreground">
-                              Enable or disable this employee for campaigns
-                            </div>
+            <>
+              <Dialog
+                open={isImportDialogOpen}
+                onOpenChange={setIsImportDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button>Import From Csv</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Employees</DialogTitle>
+                    <DialogDescription>
+                      Add Employees using a CSV file.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-2">
+                    <Label htmlFor="attachment_file">Upload File</Label>
+                    <div
+                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                        isDragOver
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                          : "border-gray-300 dark:border-gray-600"
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
+                      <input
+                        ref={fileInputRef}
+                        id="attachment_file"
+                        aria-label="Select Attachment File"
+                        type="file"
+                        accept=".csv"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+
+                      {selectedFile ? (
+                        <div className="space-y-2">
+                          <div className="text-green-600 font-medium">
+                            ✓ {selectedFile.name}
                           </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
+                          <div className="text-sm text-muted-foreground">
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedFile(null);
+                              if (fileInputRef.current) {
+                                fileInputRef.current.value = "";
+                              }
+                            }}
+                          >
+                            Remove File
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+                          <div className="text-sm font-medium">
+                            {isDragOver
+                              ? "Drop your file here"
+                              : "Drag and drop a file here (.csv)"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            or click to browse
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            Choose File
+                          </Button>
+                        </div>
                       )}
-                    />
-                    <DialogFooter>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setIsCreateDialogOpen(false);
-                          form.reset();
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button disabled={createloading} type="submit">
-                        Add Employee
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
+                    </div>
+                  </div>
+                  <Button
+                    disabled={createloading}
+                    onClick={handleImportEmployees}
+                    className="w-full"
+                  >
+                    Import Employees
+                  </Button>
+                </DialogContent>
+              </Dialog>
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={setIsCreateDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Employee
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Employee</DialogTitle>
+                    <DialogDescription>
+                      Add a new employee to your organization for security
+                      awareness campaigns.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(handleCreateEmployee)}
+                      className="space-y-4"
+                    >
+                      <FormField
+                        control={form.control}
+                        name="first_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                maxLength={50}
+                                placeholder="Enter first name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="last_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                maxLength={50}
+                                placeholder="Enter last name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                maxLength={60}
+                                placeholder="Enter email address"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="position"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Position (Optional)</FormLabel>
+                            <FormControl>
+                              <Input
+                                maxLength={50}
+                                placeholder="Enter job position"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="group_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Group (Optional)</FormLabel>
+                            <Select
+                              onValueChange={(value) =>
+                                field.onChange(
+                                  value === "0" ? undefined : parseInt(value)
+                                )
+                              }
+                              value={field.value?.toString() || "0"}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select a group" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="0">No Group</SelectItem>
+                                {groups.map((group) => (
+                                  <SelectItem
+                                    key={group.id}
+                                    value={group.id.toString()}
+                                  >
+                                    {group.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="is_active"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">
+                                Active Status
+                              </FormLabel>
+                              <div className="text-sm text-muted-foreground">
+                                Enable or disable this employee for campaigns
+                              </div>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setIsCreateDialogOpen(false);
+                            form.reset();
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button disabled={createloading} type="submit">
+                          Add Employee
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </>
           )}
           {activeTab === "groups" && (
             <Dialog
