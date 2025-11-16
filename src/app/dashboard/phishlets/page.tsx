@@ -191,9 +191,43 @@ export default function PhishletsPage() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
+  const copyToClipboard = async (text: string) => {
+    // prefer modern clipboard API when available and allowed
+    try {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        await navigator.clipboard.writeText(text);
+        toast.success("Copied to clipboard");
+        return;
+      }
+    } catch (err) {
+      // swallow and fall back to execCommand below
+      console.warn("navigator.clipboard failed:", err);
+    }
+
+    // fallback: create a hidden textarea and execCommand('copy')
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (successful) {
+        toast.success("Copied to clipboard");
+      } else {
+        toast.error("Copy failed");
+      }
+    } catch (err) {
+      console.error("clipboard fallback failed:", err);
+      toast.error("Unable to copy to clipboard");
+    }
   };
 
   const openUrl = (url: string) => {
