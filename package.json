@@ -1,6 +1,7 @@
 {
   "name": "uix",
   "version": "0.1.0",
+  "homepage": "/app",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

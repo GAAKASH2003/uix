@@ -1,20 +1,21 @@
-import {withSentryConfig} from '@sentry/nextjs';
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
+  basePath: "/app",
   // Disable React Developer Tools and other devtools
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
       // Remove React Developer Tools
       config.resolve.alias = {
         ...config.resolve.alias,
-        'react-devtools': false,
-        'react-devtools-core': false,
-        'react-devtools-inline': false,
+        "react-devtools": false,
+        "react-devtools-core": false,
+        "react-devtools-inline": false,
       };
-      
+
       // Disable source maps for faster builds
       config.devtool = false;
     }
@@ -23,7 +24,7 @@ const nextConfig: NextConfig = {
   // Disable Next.js devtools indicator
   devIndicators: {
     buildActivity: false,
-    buildActivityPosition: 'bottom-right',
+    buildActivityPosition: "bottom-right",
   },
 };
 
