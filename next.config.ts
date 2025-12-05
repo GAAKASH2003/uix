@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
-  basePath: "/app",
+  // basePath: "/app",
   // Disable React Developer Tools and other devtools
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
