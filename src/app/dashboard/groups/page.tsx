@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Users } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { Plus, Edit, Trash2, Search, Users } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -15,7 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,18 +41,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+} from "@/components/ui/alert-dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-import { groupsService, Group, GroupCreate, GroupUpdate } from '@/lib/auth';
+import { groupsService, Group, GroupCreate, GroupUpdate } from "@/lib/auth";
 
 const groupSchema = z.object({
-  name: z.string().min(1, 'Group name is required'),
+  name: z.string().min(1, "Group name is required"),
   description: z.string().optional(),
-  is_active: z.boolean().default(true),
+  is_active: z.boolean().optional().default(true),
 });
 
 type GroupForm = z.infer<typeof groupSchema>;
@@ -54,28 +67,44 @@ type GroupForm = z.infer<typeof groupSchema>;
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
 
-  const form = useForm<GroupForm>({
+  // const form = useForm<GroupForm>({
+  //   resolver: zodResolver(groupSchema),
+  //   defaultValues: {
+  //     name: '',
+  //     description: '',
+  //     is_active: true,
+  //   },
+  // });
+
+  // const editForm = useForm<GroupForm>({
+  //   resolver: zodResolver(groupSchema),
+  //   defaultValues: {
+  //     name: '',
+  //     description: '',
+  //     is_active: true,
+  //   },
+  // });
+  const form = useForm({
     resolver: zodResolver(groupSchema),
     defaultValues: {
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       is_active: true,
     },
   });
 
-  const editForm = useForm<GroupForm>({
+  const editForm = useForm({
     resolver: zodResolver(groupSchema),
     defaultValues: {
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       is_active: true,
     },
   });
-
   useEffect(() => {
     fetchGroups();
   }, []);
@@ -86,8 +115,8 @@ export default function GroupsPage() {
       const data = await groupsService.getGroups();
       setGroups(data);
     } catch (error) {
-      toast.error('Failed to fetch groups');
-      console.error('Error fetching groups:', error);
+      toast.error("Failed to fetch groups");
+      console.error("Error fetching groups:", error);
     } finally {
       setLoading(false);
     }
@@ -96,27 +125,29 @@ export default function GroupsPage() {
   const handleCreateGroup = async (data: GroupForm) => {
     try {
       await groupsService.createGroup(data);
-      toast.success('Group created successfully');
+      toast.success("Group created successfully");
       setIsCreateDialogOpen(false);
       form.reset();
       fetchGroups();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to create group';
+      const errorMessage =
+        error.response?.data?.detail || "Failed to create group";
       toast.error(errorMessage);
     }
   };
 
   const handleEditGroup = async (data: GroupForm) => {
     if (!editingGroup) return;
-    
+
     try {
       await groupsService.updateGroup(editingGroup.id, data);
-      toast.success('Group updated successfully');
+      toast.success("Group updated successfully");
       setEditingGroup(null);
       editForm.reset();
       fetchGroups();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to update group';
+      const errorMessage =
+        error.response?.data?.detail || "Failed to update group";
       toast.error(errorMessage);
     }
   };
@@ -124,10 +155,11 @@ export default function GroupsPage() {
   const handleDeleteGroup = async (groupId: number) => {
     try {
       await groupsService.deleteGroup(groupId);
-      toast.success('Group deleted successfully');
+      toast.success("Group deleted successfully");
       fetchGroups();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to delete group';
+      const errorMessage =
+        error.response?.data?.detail || "Failed to delete group";
       toast.error(errorMessage);
     }
   };
@@ -136,14 +168,16 @@ export default function GroupsPage() {
     setEditingGroup(group);
     editForm.reset({
       name: group.name,
-      description: group.description || '',
+      description: group.description || "",
       is_active: group.is_active,
     });
   };
 
-  const filteredGroups = groups.filter(group =>
-    group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (group.description && group.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredGroups = groups.filter(
+    (group) =>
+      group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (group.description &&
+        group.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {
@@ -151,7 +185,9 @@ export default function GroupsPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Loading groups...</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Loading groups...
+          </p>
         </div>
       </div>
     );
@@ -162,7 +198,9 @@ export default function GroupsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Groups</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Groups
+          </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Manage departments and groups for organizing employees
           </p>
@@ -182,7 +220,10 @@ export default function GroupsPage() {
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleCreateGroup)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(handleCreateGroup)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -203,14 +244,21 @@ export default function GroupsPage() {
                     <FormItem>
                       <FormLabel>Description (Optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter group description" {...field} />
+                        <Input
+                          placeholder="Enter group description"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit">Add Group</Button>
@@ -267,10 +315,12 @@ export default function GroupsPage() {
                       <TableCell>
                         <div className="font-medium">{group.name}</div>
                       </TableCell>
-                      <TableCell>{group.description || '-'}</TableCell>
+                      <TableCell>{group.description || "-"}</TableCell>
                       <TableCell>
-                        <Badge variant={group.is_active ? "default" : "secondary"}>
-                          {group.is_active ? 'Active' : 'Inactive'}
+                        <Badge
+                          variant={group.is_active ? "default" : "secondary"}
+                        >
+                          {group.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -296,7 +346,12 @@ export default function GroupsPage() {
                                 </DialogDescription>
                               </DialogHeader>
                               <Form {...editForm}>
-                                <form onSubmit={editForm.handleSubmit(handleEditGroup)} className="space-y-4">
+                                <form
+                                  onSubmit={editForm.handleSubmit(
+                                    handleEditGroup
+                                  )}
+                                  className="space-y-4"
+                                >
                                   <FormField
                                     control={editForm.control}
                                     name="name"
@@ -324,7 +379,11 @@ export default function GroupsPage() {
                                     )}
                                   />
                                   <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={() => setEditingGroup(null)}>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      onClick={() => setEditingGroup(null)}
+                                    >
                                       Cancel
                                     </Button>
                                     <Button type="submit">Update Group</Button>
@@ -341,10 +400,12 @@ export default function GroupsPage() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Group</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Delete Group
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete "{group.name}"? 
-                                  This action cannot be undone.
+                                  Are you sure you want to delete "{group.name}
+                                  "? This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

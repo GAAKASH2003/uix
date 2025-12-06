@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 
 export default function DebugPage() {
   const { user, loading } = useAuth();
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -29,15 +29,15 @@ export default function DebugPage() {
   const testMeEndpoint = async () => {
     try {
       const response = await authService.getCurrentUser();
-      setDebugInfo(prev => ({ ...prev, meResponse: response }));
+      setDebugInfo((prev: Record<string, any>) => ({ ...prev, meResponse: response }));
     } catch (error: any) {
-      setDebugInfo(prev => ({ ...prev, meError: error.message }));
+      setDebugInfo((prev: Record<string, any>) => ({ ...prev, meError: error.message }));
     }
   };
 
   const clearToken = () => {
     authService.logout();
-    setDebugInfo(prev => ({ ...prev, cleared: true }));
+    setDebugInfo((prev: Record<string, any>) => ({ ...prev, cleared: true }));
   };
 
   return (
